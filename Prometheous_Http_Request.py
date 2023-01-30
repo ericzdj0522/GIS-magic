@@ -1,9 +1,9 @@
 import requests
-import json
 import psycopg2
 import json
 import config
 
+# PR test for new repo on Github
 # Send http request via port-forward to prometheous database
 def prometheous_post_request():
     URL="http://localhost:9999/api/v1/query"
