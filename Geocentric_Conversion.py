@@ -8,20 +8,31 @@
 
 import pyproj, csv, decimal
 
+
 def geoconversion(x, y, z):
-    ecef = pyproj.Proj(proj='geocent', ellps='WGS84', datum='WGS84')
-    lla = pyproj.Proj(proj='latlong', ellps='WGS84', datum='WGS84')
-    lon, lat, alt = pyproj.transform(ecef, lla, x, y, z, radians=False)
+    transformer = pyproj.Transformer.from_crs(
+        {"proj": 'geocent', "ellps": 'WGS84', "datum": 'WGS84'},
+        {"proj": 'latlong', "ellps": 'WGS84', "datum": 'WGS84'},
+    )
+    lon, lat, alt = transformer.transform(x, y, z, radians=False)
+
+
+    #lon, lat, alt = pyproj.transform(ecef, lla, x, y, z, radians=False)
     return lon, lat, alt
 
 
 def geoconversion_reverse(long, lat, alt):
-    ecef = pyproj.Proj(proj='geocent', ellps='WGS84', datum='WGS84')
-    lla = pyproj.Proj(proj='latlong', ellps='WGS84', datum='WGS84')
-    x, y, z = pyproj.transform(lla, ecef, long, lat, alt, radians=False)
+    transformer = pyproj.Transformer.from_crs(
+        {"proj": 'latlong', "ellps": 'WGS84', "datum": 'WGS84'},
+        {"proj": 'geocent', "ellps": 'WGS84', "datum": 'WGS84'},
+    )
+    x, y, z = transformer.transform(long, lat, alt, radians = False)
+
+    #x, y, z = pyproj.transform(lla, ecef, long, lat, alt, radians=False)
     return x, y, z
 
 
+'''
 with open('/Users/dj/Documents/QGIS/CSV/Test/Swift_Production_Station_Coordinates.csv') as csvfile:
     with open('/Users/dj/Documents/QGIS/CSV/Test/Swift_Production_Station.csv', 'w') as newcsvfile:
         cursor = csv.reader(csvfile, delimiter=',')
@@ -41,8 +52,8 @@ with open('/Users/dj/Documents/QGIS/CSV/Test/Swift_Production_Station_Coordinate
             writer.writerow(row + temp)
 '''
 
-with open('/Users/dj/Documents/QGIS/CSV/Autstralia/AUSCORS_stations_total.csv') as csvfile:
-    with open('/Users/dj/Documents/QGIS/CSV/Autstralia/AUSCORS_stations_total_update.csv', 'w') as newcsvfile:
+with open('/Users/dj/Documents/QGIS/CSV/Autstralia/AUS_Skylark/AUS_additional_stations.csv') as csvfile:
+    with open('/Users/dj/Documents/QGIS/CSV/Autstralia/AUS_Skylark/AUS_additional_stations_xyz.csv', 'w') as newcsvfile:
         cursor = csv.reader(csvfile, delimiter=',')
         writer = csv.writer(newcsvfile, delimiter=',')
         firstline = True
@@ -54,12 +65,12 @@ with open('/Users/dj/Documents/QGIS/CSV/Autstralia/AUSCORS_stations_total.csv') 
                 firstline = False
                 writer.writerow(row + ['X', 'Y', 'Z'])
                 continue
-            x, y, z = geoconversion_reverse(float(row[14]), float(row[15]), float(row[16]))
-            print x, y, z
+            x, y, z = geoconversion_reverse(float(row[16]), float(row[17]), float(row[18]))
+            print(x, y, z)
             temp = [x, y, z]
             writer.writerow(row + temp)
 
-'''
+
 
 
 
