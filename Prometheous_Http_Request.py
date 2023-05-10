@@ -1,20 +1,23 @@
 import requests
-import json
 import psycopg2
 import json
 import config
 
+# PR test for new repo on Github
 # Send http request via port-forward to prometheous database
 def prometheous_post_request():
+    # Prometheous API url
     URL="http://localhost:9999/api/v1/query"
 
+    # Query specific metrics
     query = "sum by (station)(orion_ntrip_client_bytes_sum)"
+    # Query specific signals
     #query = "sum by (station)(irate(orion_num_obs_total{geography='eu',code='BDS B1', station='ATFS00AUT'}[1m]))"
 
+    # sending request
     PARAMS = {"query": query}
-
-    r = requests.get(url = URL, params = PARAMS)
-    data = r.json()
+    res = requests.get(url = URL, params = PARAMS)
+    data = res.json()
 
     station_status = data['data']['result']
     station_dic = {}
@@ -45,7 +48,6 @@ def json_parser(test):
             print(station)
             update_postgis(status, station)
     #Test case
-
     f.close()
 
 
@@ -75,9 +77,10 @@ def select_postgis():
     conn.commit()
     cur.close()
 
-#Postgis update process
+
+# Postgis update process
 def update_postgis(status, station):
-    #sql to perform her
+    # sql to perform her
     try:
         sql = 'UPDATE "swift"."EU_stations_v2" SET "status" = %s WHERE "station" = %s'
         print(sql)
@@ -105,9 +108,9 @@ def update_postgis(status, station):
             print("PostgreSQL connection is closed")
 
 
-#Main function
+# Main function
 if __name__ == '__main__':
-    #Send request to prometheous database to pull out station data
+    # Send request to prometheous database to pull out station data
     prometheous_post_request()
     # Test case for station status: 0 to rest station layer; 1 to load prometheous data to postgis for real time station status
     json_parser(1)
