@@ -3,11 +3,23 @@ import pandas as pd
 import pyproj, csv, decimal
 '''
 Data source:
-Sitetrakcer
+Sitetracker
 Orion network yaml file: https://github.com/swift-nav/skylark-networks/blob/master/networks.yaml
 Grafana station signal for different regions:
 
 Update and reiew production layer before deployed to RDS PostGIS database
+Step1:
+Update signals files, network yaml file and station list file
+
+Step2:
+Feed region to function and generate csv layer file
+
+Step3:
+Clear layer in database and append new csv layer file
+
+Step4:
+Export postgis database locally as a sql file, and submit a pull request to github repo for migration
+
 '''
 
 #Define global variables here
@@ -16,7 +28,7 @@ Update and reiew production layer before deployed to RDS PostGIS database
 # Combine first and third party stations from Sitetracker
 def combine_stations():
     swift_station_df = pd.read_csv('/Users/dj/Documents/QGIS/yaml/ST_swift_stations.csv')
-    other_station_df = pd.read_csv('/Users/dj/Documents/QGIS/yaml/Third_party_stations.csv')
+    other_station_df = pd.read_csv('/Users/dj/Documents/QGIS/yaml/ST_third_party_stations.csv')
     dts = [swift_station_df, other_station_df]
     all_station_df = pd.concat(dts, ignore_index=False, join='inner')
     all_station_df.to_csv('/Users/dj/Documents/QGIS/yaml/all_stations.csv', index=False)
@@ -35,16 +47,17 @@ def geoconversion(x, y, z):
 # Clean up data table to match PostGIS schema
 def dataframe_cleanup(region):
     input_stations_prod = '/Users/dj/Documents/postgis/csv/{}_stations_prod.csv'.format(region)
-    output_stations_prod = '/Users/dj/Documents/postgis/csv/{}_stations_prod_clean.csv'.format(region)
+    output_stations_prod = '/Users/dj/Documents/postgis/csv/{}_stations_prod_rtk_clean.csv'.format(region)
 
     station_df = pd.read_csv(input_stations_prod)
     station_df.pop('X')
     station_df.pop('Y')
     station_df.pop('Z')
     station_df.pop('connection')
-    station_df['type'] = 'single'
+    station_df['type'] = 'RTK'
     station_df.columns = station_df.columns.str.lower()
-    station_df = station_df.rename(columns={"bds-b1i": "bds-b1", "bds-b2i": "bds-b2"})
+    station_df['gal-e1'] = '14'
+    station_df = station_df.rename(columns={"bds-b1i": "bds-b1", "bds-b2i": "bds-b2", "bds-b3i": "bds-b3"})
     for index in station_df.index:
         if '-' in station_df.at[index, 'station']:
             temp = station_df.at[index, 'station'].split('-')
@@ -57,6 +70,7 @@ def dataframe_cleanup(region):
     station_df.to_csv(output_stations_prod, index=False)
 
 
+# Join base station with signal information
 def join_station_signal(region):
     station_signals = '/Users/dj/Documents/postgis/csv/{}_signals.csv'.format(region)
     output_stations_prod = '/Users/dj/Documents/postgis/csv/{}_stations_prod.csv'.format(region)
@@ -70,6 +84,9 @@ def join_station_signal(region):
 # Read base station and rover station from yaml file
 def base_rover_cleaner(region):
     index = region.lower()
+    if index == "na":
+        index = 'conus'
+
     input_yaml = '/Users/dj/Documents/QGIS/yaml/networks.yaml'
     output_base = '/Users/dj/Documents/QGIS/yaml/{}_stations_base.csv'.format(region)
     output_rover = '/Users/dj/Documents/QGIS/yaml/{}_stations_rover.csv'.format(region)
@@ -83,7 +100,8 @@ def base_rover_cleaner(region):
             # write first row
             writer.writerow(['Station'])
 
-            stationlist = doc[index]['prod']['base']
+            # Parse specific section of stations
+            stationlist = doc[index]['prod']['rtk']
             for item in stationlist:
                 print(item['identifier'])
                 writer.writerow([item['identifier']])
@@ -165,4 +183,5 @@ def distance_matrix():
     print('test')
 
 if __name__ == '__main__':
-    layer_update('EU')
+    layer_update('NA')
+    #base_rover_cleaner('conus')
