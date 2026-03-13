@@ -7,7 +7,7 @@ import pyproj, csv, decimal
 # Combine first and third party stations from Sitetracker
 def combine_stations():
     swift_station_df = pd.read_csv('/Users/dj/Documents/QGIS/yaml/ST_swift_stations.csv')
-    other_station_df = pd.read_csv('/Users/dj/Documents/QGIS/yaml/Third_party_stations.csv')
+    other_station_df = pd.read_csv('/Users/dj/Documents/QGIS/yaml/ST_third_party_stations.csv')
     dts = [swift_station_df, other_station_df]
     all_station_df = pd.concat(dts, ignore_index=False, join='inner')
     all_station_df.to_csv('/Users/dj/Documents/QGIS/yaml/all_stations.csv', index=False)

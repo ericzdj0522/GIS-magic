@@ -32,9 +32,8 @@ def geoconversion_reverse(long, lat, alt):
     return x, y, z
 
 
-'''
-with open('/Users/dj/Documents/QGIS/CSV/Test/Swift_Production_Station_Coordinates.csv') as csvfile:
-    with open('/Users/dj/Documents/QGIS/CSV/Test/Swift_Production_Station.csv', 'w') as newcsvfile:
+with open('/Users/dj/Documents/QGIS/CSV/AP/CSV/CHC_stations_ingestion_ap.csv') as csvfile:
+    with open('/Users/dj/Documents/QGIS/CSV/AP/CSV/CHC_stations_ingestion_ap_latlon.csv', 'w') as newcsvfile:
         cursor = csv.reader(csvfile, delimiter=',')
         writer = csv.writer(newcsvfile, delimiter=',')
         firstline = True
@@ -46,14 +45,14 @@ with open('/Users/dj/Documents/QGIS/CSV/Test/Swift_Production_Station_Coordinate
                 firstline = False
                 writer.writerow(row + ['Longitude', 'Latitude', 'Altitude'])
                 continue
-            lon, lat, alt = geoconversion(float(row[1]), float(row[2]), float(row[3]))
-            print lon, lat, alt
+            lon, lat, alt = geoconversion(float(row[6]), float(row[7]), float(row[8]))
+            print(lon, lat, alt)
             temp = [lon, lat, alt]
             writer.writerow(row + temp)
 '''
 
-with open('/Users/dj/Documents/QGIS/CSV/Autstralia/AUS_Skylark/AUS_additional_stations.csv') as csvfile:
-    with open('/Users/dj/Documents/QGIS/CSV/Autstralia/AUS_Skylark/AUS_additional_stations_xyz.csv', 'w') as newcsvfile:
+with open('/Users/dj/Documents/QGIS/CSV/NA/12042024/stations_to_evaluate.csv') as csvfile:
+    with open('/Users/dj/Documents/QGIS/CSV/NA/12042024/stations_to_evaluate_xyz.csv', 'w') as newcsvfile:
         cursor = csv.reader(csvfile, delimiter=',')
         writer = csv.writer(newcsvfile, delimiter=',')
         firstline = True
@@ -65,14 +64,12 @@ with open('/Users/dj/Documents/QGIS/CSV/Autstralia/AUS_Skylark/AUS_additional_st
                 firstline = False
                 writer.writerow(row + ['X', 'Y', 'Z'])
                 continue
-            x, y, z = geoconversion_reverse(float(row[16]), float(row[17]), float(row[18]))
+            x, y, z = geoconversion_reverse(float(row[11]), float(row[10]), float(row[12]))
             print(x, y, z)
             temp = [x, y, z]
             writer.writerow(row + temp)
 
-
-
-
+'''
 
 
 
