@@ -1,10 +1,10 @@
 import requests
 import json
 
-url = "https://grafana.edge.na-prod-1-cluster.k8s.cs.swiftnav.com/api/datasources/proxy/uid/P5DCFC7561CCDE821/api/v1/query"
+url = "test"
 
 headers = {
-    "Authorization": "Bearer glsa_nZpfjx66SQtPCZSA1yUSI7ipo7PfYI6z_0310c693",
+    "Authorization": "test",
     "Content-Type": "application/json"
 }
 
